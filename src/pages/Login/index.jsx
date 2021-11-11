@@ -78,9 +78,7 @@ const Login = () => {
         <LoginForm
           logo={<img alt="logo" src="/logo.png" />}
           title="小草后台"
-          subTitle={intl.formatMessage({
-            id: '电商练习后台-react-antdPro',
-          })}
+          subTitle='电商练习后台-react-antdPro'
           // initialValues={{
           //   autoLogin: true,
           // }}
