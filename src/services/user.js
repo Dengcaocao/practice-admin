@@ -20,3 +20,12 @@ export async function login(body, options) {
     ...(options || {}),
   });
 }
+
+/** 退出登录接口 POST /api/login/outLogin */
+
+export async function logout(options) {
+  return request('/auth/logout', {
+    method: 'POST',
+    ...(options || {})
+  })
+}
