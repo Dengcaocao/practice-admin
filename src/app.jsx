@@ -16,15 +16,14 @@ export const initialStateConfig = {
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
 
-
 // 请求拦截
 const requestInterceptors = (url, options) => {
-  console.log(url, options, '运行时配置 请求拦截器')
+  console.log(url, options, '运行时配置 请求拦截器');
   // 设置请求头
-  const { headers } = options
-  const token = 'lonin set'
+  const { headers } = options;
+  const token = 'lonin set';
   // tips headers中不能设置中文会报错，引起接口走不下去
-  headers.Authorization = `Bearer ${token}`
+  headers.Authorization = `Bearer ${token}`;
   // // 设置代理前缀/api
   // const newUrl = `/api${url}`;
   // const obj: any = options;
@@ -36,58 +35,47 @@ const requestInterceptors = (url, options) => {
   // }
   return {
     url,
-    options: {...options}
-  }
-}
+    options: { ...options },
+  };
+};
 
 // 响应拦截
-const responseInterceptors = async res => {
+const responseInterceptors = async (res) => {
   // fetch请求必须通过以下方式获取服务器请求
-  const result = await res.clone().json()
-  console.log(res, 'response')
-  let errorText = ''
+  const result = await res.clone().json();
+  console.log(result, 'response');
+  let errorText = '';
   if (res.status === 422) {
-    console.log(result)
+    console.log(result);
     for (let i in result.errors) {
-      errorText += result.errors[i].toString()
+      errorText += result.errors[i].toString();
     }
+    throw new Error(errorText);
   }
-  throw new Error(errorText)
-  
-  // console.log(res);
+  // if (res.status >= 400) throw new Error(result.message)
+  return res;
+};
 
-  // const { code, result, success } = res;
-  // // 如果是分页的 字段调整为records
-  // if (
-  //   code === 0 &&
-  //   Object.prototype.toString.call(result) === '[object Object]' &&
-  //   result.records
-  // ) {
-  //   result.data = result.records;
-  //   delete result.records;
-  // }
-  // return { ...result, code, success };
-  return response
-}
-
- export const request = {
-  errorHandler: err => {
-    message.error(err.message)
+export const request = {
+  // 前缀
+  prefix: '/api',
+  errorHandler: (err) => {
+    message.error(err.message);
   },
   requestInterceptors: [requestInterceptors],
-  responseInterceptors: [responseInterceptors]
-}
+  responseInterceptors: [responseInterceptors],
+};
 
 export async function getInitialState() {
   const fetchUserInfo = async () => {
     try {
       const msg = await queryCurrentUser();
-      return msg.data
+      return msg.data;
     } catch (error) {
-      history.push(loginPath)
+      history.push(loginPath);
     }
 
-    return undefined
+    return undefined;
   }; // 如果是登录页面，不执行
 
   if (history.location.pathname !== loginPath) {
