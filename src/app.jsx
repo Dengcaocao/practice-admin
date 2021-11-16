@@ -2,7 +2,7 @@ import { PageLoading } from '@ant-design/pro-layout';
 import { history, Link } from 'umi';
 import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
-import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
+import { currentUser } from './services/user'
 import { message } from 'antd';
 // import { BookOutlined, LinkOutlined } from '@ant-design/icons';
 const isDev = process.env.NODE_ENV === 'development';
@@ -10,86 +10,77 @@ const loginPath = '/login';
 /** 获取用户信息比较慢的时候会展示一个 loading */
 
 export const initialStateConfig = {
-  loading: <PageLoading />,
-};
+  loading: <PageLoading />
+}
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
 
 // 请求拦截
 const requestInterceptors = (url, options) => {
-  console.log(url, options, '运行时配置 请求拦截器');
   // 设置请求头
-  const { headers } = options;
-  const token = 'lonin set';
+  const { headers } = options
+  const token = localStorage.getItem('access_token') || ''
   // tips headers中不能设置中文会报错，引起接口走不下去
-  headers.Authorization = `Bearer ${token}`;
-  // // 设置代理前缀/api
-  // const newUrl = `/api${url}`;
-  // const obj: any = options;
-  // const { params } = obj;
-  // // 分页字段修改
-  // if (params && params.current) {
-  //   params.pageNo = params.current;
-  //   delete params.current;
-  // }
+  headers.Authorization = `Bearer ${token}`
   return {
     url,
-    options: { ...options },
-  };
-};
+    options: { ...options }
+  }
+}
 
 // 响应拦截
 const responseInterceptors = async (res) => {
   // fetch请求必须通过以下方式获取服务器请求
-  const result = await res.clone().json();
-  console.log(result, 'response');
-  let errorText = '';
+  const result = await res.clone().json()
+  let errorText = ''
+  // 登录相关错误
   if (res.status === 422) {
-    console.log(result);
     for (let i in result.errors) {
-      errorText += result.errors[i].toString();
+      errorText += result.errors[i].toString()
     }
-    throw new Error(errorText);
+    throw new Error(errorText)
   }
+
+  if (res.status === 401) throw new Error('账户或密码错误！')
   // if (res.status >= 400) throw new Error(result.message)
-  return res;
-};
+  return res
+}
 
 export const request = {
   // 前缀
   prefix: '/api',
-  errorHandler: (err) => {
-    message.error(err.message);
+  errorHandler: err => {
+    message.error(err.message)
   },
   requestInterceptors: [requestInterceptors],
-  responseInterceptors: [responseInterceptors],
-};
+  responseInterceptors: [responseInterceptors]
+}
 
 export async function getInitialState() {
   const fetchUserInfo = async () => {
     try {
-      const msg = await queryCurrentUser();
-      return msg.data;
+      const userInfo = await currentUser()
+      return userInfo
     } catch (error) {
-      history.push(loginPath);
+      history.push(loginPath)
     }
 
-    return undefined;
-  }; // 如果是登录页面，不执行
+    return undefined
+  } // 如果是登录页面，不执行
 
   if (history.location.pathname !== loginPath) {
-    const currentUser = await fetchUserInfo();
+    const currentUser = await fetchUserInfo()
     return {
       fetchUserInfo,
       currentUser,
-      settings: {},
-    };
+      settings: {}
+    }
   }
 
   return {
     fetchUserInfo,
-    settings: {},
+    settings: {}
   };
 } // ProLayout 支持的api https://procomponents.ant.design/components/layout
 
@@ -102,7 +93,7 @@ export const layout = ({ initialState }) => {
     },
     footerRender: () => <Footer />,
     onPageChange: () => {
-      const { location } = history; // 如果没有登录，重定向到 login
+      const { location } = history // 如果没有登录，重定向到 login
 
       if (!initialState?.currentUser && location.pathname !== loginPath) {
         history.push(loginPath);

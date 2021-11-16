@@ -4,25 +4,12 @@ import React, { useState } from 'react';
 import { ProFormText, LoginForm } from '@ant-design/pro-form';
 import { useIntl, history, useModel } from 'umi';
 import Footer from '@/components/Footer';
-import { login } from '@/services/ant-design-pro/api';
+import { login } from '@/services/user'
 import styles from './index.less';
 
-const LoginMessage = ({ content }) => (
-  <Alert
-    style={{
-      marginBottom: 24,
-    }}
-    message={content}
-    type="error"
-    showIcon
-  />
-);
-
 const Login = () => {
-  const [userLoginState, setUserLoginState] = useState({});
-  const [type, setType] = useState('account');
-  const { initialState, setInitialState } = useModel('@@initialState');
-  const intl = useIntl();
+  const { initialState, setInitialState } = useModel('@@initialState')
+  const intl = useIntl()
 
   const fetchUserInfo = async () => {
     const userInfo = await initialState?.fetchUserInfo?.();
@@ -35,30 +22,28 @@ const Login = () => {
   const handleSubmit = async (values) => {
     try {
       // 登录
-      const msg = await login({ ...values, type });
-      console.log(msg, 'msg');
+      const msg = await login(values)
       if (msg) {
-        const defaultLoginSuccessMessage = '登录成功！';
-        message.success(defaultLoginSuccessMessage);
-        await fetchUserInfo();
+        const defaultLoginSuccessMessage = '登录成功！'
+        message.success(defaultLoginSuccessMessage)
+        // 保存用户token
+        localStorage.setItem('access_token', msg.access_token)
+        // 获取用户信息
+        await fetchUserInfo()
         /** 此方法会跳转到 redirect 参数所在的位置 */
 
-        if (!history) return;
-        const { query } = history.location;
-        const { redirect } = query;
-        history.push(redirect || '/');
-        return;
-      } else {
-        // throw new Error('登录失败，请重试！')
-        throw new Error('账户或密码错误！');
+        if (!history) return
+        const { query } = history.location
+        const { redirect } = query
+        history.push(redirect || '/')
+        return
       }
-      setUserLoginState(msg);
+      setUserLoginState(msg)
     } catch (error) {
-      message.error(error.message);
+      message.error(error.message)
     }
   };
 
-  // const { status, type: loginType } = userLoginState;
   return (
     <div className={styles.container}>
       <div className={styles.content}>
@@ -70,7 +55,7 @@ const Login = () => {
             await handleSubmit(values);
           }}
         >
-          <Tabs activeKey={type}>
+          <Tabs activeKey="account">
             <Tabs.TabPane
               key="account"
               tab={intl.formatMessage({
@@ -79,11 +64,7 @@ const Login = () => {
               })}
             />
           </Tabs>
-
-          {status === 'error' && loginType === 'account' && (
-            <LoginMessage content="账户或密码错误(super@a.com/123123)" />
-          )}
-          {type === 'account' && (
+          {(
             <>
               <ProFormText
                 name="email"
