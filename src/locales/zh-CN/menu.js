@@ -1,4 +1,6 @@
 export default {
+  'menu.index': '首页统计',
+  'menu.userlist': '用户列表',
   'menu.welcome': '欢迎',
   'menu.more-blocks': '更多区块',
   'menu.home': '首页',

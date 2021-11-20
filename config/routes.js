@@ -7,9 +7,28 @@ export default [
     hideInMenu: true
   },
   {
-    path: '/'
+    path: '/',
+    name: 'index',
+    icon: 'PieChartOutlined',
+    // component: '@/pages/Home'
+    routes: [
+      {
+        path: '/',
+        component: '@/pages/Home'
+      },
+      {
+        path: 'userlist',
+        component: '@/pages/User'
+      }
+    ]
   },
   {
-    component: './404',
+    path: '/userlist',
+    name: 'userlist',
+    icon: 'UserOutlined',
+    // component: '@/pages/User'
+  },
+  {
+    component: './404'
   },
 ];

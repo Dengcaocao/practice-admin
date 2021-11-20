@@ -13,7 +13,6 @@ import { logout } from '@/services/user';
  */
 const handleLogout = async () => {
   await logout()
-  console.log('退出登录')
   const { query = {}, pathname } = history.location
   const { redirect } = query // Note: There may be security issues, please note
 
@@ -40,7 +39,6 @@ const AvatarDropdown = ({ menu }) => {
          */
         await handleLogout()
         setInitialState(s => {
-          console.log('清理token')
           localStorage.removeItem('access_token')
           return { ...s, currentUser: undefined }
         })
