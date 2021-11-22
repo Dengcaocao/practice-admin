@@ -4,7 +4,7 @@
 import { request } from 'umi';
 /** 获取当前的用户 GET /api/currentUser */
 
-export async function currentUser(options) {
+export async function queryCurrentUser(options) {
   return request('/admin/user', {
     method: 'GET',
     ...(options || {})

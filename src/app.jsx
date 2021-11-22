@@ -2,7 +2,7 @@ import { PageLoading } from '@ant-design/pro-layout';
 import { history, Link } from 'umi';
 import RightContent from '@/components/RightContent';
 import Footer from '@/components/Footer';
-import { currentUser } from './services/user'
+import { queryCurrentUser  } from './services/user'
 import { message } from 'antd';
 // import { BookOutlined, LinkOutlined } from '@ant-design/icons';
 const isDev = process.env.NODE_ENV === 'development';
@@ -60,7 +60,7 @@ export const request = {
 export async function getInitialState() {
   const fetchUserInfo = async () => {
     try {
-      const userInfo = await currentUser()
+      const userInfo = await queryCurrentUser()
       return userInfo
     } catch (error) {
       history.push(loginPath)
@@ -69,19 +69,26 @@ export async function getInitialState() {
     return undefined
   } // 如果是登录页面，不执行
 
-  if (history.location.pathname !== loginPath) {
-    const currentUser = await fetchUserInfo()
-    return {
-      fetchUserInfo,
-      currentUser,
-      settings: {}
-    }
-  }
-
+  const currentUser = await fetchUserInfo()
   return {
     fetchUserInfo,
+    currentUser,
     settings: {}
-  };
+  }
+
+  // if (history.location.pathname !== loginPath) {
+  //   const currentUser = await fetchUserInfo()
+  //   return {
+  //     fetchUserInfo,
+  //     currentUser,
+  //     settings: {}
+  //   }
+  // }
+
+  // return {
+  //   fetchUserInfo,
+  //   settings: {}
+  // };
 } // ProLayout 支持的api https://procomponents.ant.design/components/layout
 
 export const layout = ({ initialState }) => {
@@ -96,7 +103,11 @@ export const layout = ({ initialState }) => {
       const { location } = history // 如果没有登录，重定向到 login
 
       if (!initialState?.currentUser && location.pathname !== loginPath) {
-        history.push(loginPath);
+        history.push(loginPath)
+      }
+
+      if (initialState?.currentUser && location.pathname === loginPath) {
+        history.replace('/')
       }
     },
     menuHeaderRender: undefined,
