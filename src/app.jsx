@@ -32,7 +32,14 @@ const requestInterceptors = (url, options) => {
 // 响应拦截
 const responseInterceptors = async (res) => {
   // fetch请求必须通过以下方式获取服务器请求
-  const result = await res.clone().json();
+  /**
+   * try……catch解决返回为undefined或为空字符串引起的错误
+   */
+  try {
+    const result = await res.clone().json()
+  } catch (error) {
+    
+  }
   let errorText = '';
   // 登录相关错误
   if (res.status === 422) {
