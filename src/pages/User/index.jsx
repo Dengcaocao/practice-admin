@@ -7,31 +7,37 @@ import request from 'umi-request';
 import { userList } from '@/services/userList';
 
 export default () => {
-  const [dataList, setDataList] = useState([]);
 
-  useEffect(() => {
-    getUserList();
-  }, []);
 
-  const getUserList = () => {
-    userList().then((res) => {
-      console.log(res);
-      // setDataList(res.data)
+  const getUserList = async (params) => {
+    try {
+      const { data, meta:{ pagination: { total }}} = await userList({params})
       return {
-        data: res.data,
+        data,
         success: true,
-        total: res.meta.pagination.total,
-      };
-    });
-  };
+        total
+      }
+    } catch (err) {
+      message.error(err.message)
+    }
+  }
+
+  // 设置用户状态
+  const handleUserStatus = async (uid) => {
+    try {
+      const res = await setUserStatus(uid)
+      if (!res) message.success('操作成功')
+    } catch (err) {
+      message.error(err.message)
+    }
+  }
 
   const columns = [
     {
       title: '头像',
       dataIndex: 'avatar',
-      copyable: true,
       ellipsis: true,
-      search: false,
+      hideInSearch: true,
       render: (text, record) => <Avatar src={record.avatar_url} icon={<UserOutlined />} />,
     },
     {
@@ -49,32 +55,31 @@ export default () => {
     {
       title: '是否禁用',
       dataIndex: 'is_locked',
-      copyable: true,
       ellipsis: true,
-      search: false,
+      hideInSearch: true,
       render: (text, record) => (
         <Switch
           checkedChildren="开启"
           unCheckedChildren="关闭"
           defaultChecked={record.is_locked ? true : false}
+          onChange={ () => handleUserStatus(record.id) }
         />
-      ),
+      )
     },
     {
       title: '创建时间',
       dataIndex: 'created_at',
-      copyable: true,
       ellipsis: true,
-      search: false,
+      hideInSearch: true
     },
     {
       title: '操作',
       dataIndex: 'action',
       ellipsis: true,
-      search: false,
-      render: (text, record) => [<a key="link">链路</a>, <a key="warn">报警</a>],
+      hideInSearch: true,
+      render: (text, record) => [<a key="link">编辑</a>],
     },
-  ];
+  ]
 
   return (
     <PageContainer>
@@ -82,7 +87,7 @@ export default () => {
         columns={columns}
         // dataSource={dataList}
         // actionRef={actionRef}
-        request={async (params = {}) => userList()}
+        request={async (params = {}) => getUserList(params)}
         onSubmit={(params) => console.log(params)}
         search={{
           labelWidth: 'auto',
