@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
+import ProForm, { ProFormText } from '@ant-design/pro-form';
 import ProTable from '@ant-design/pro-table';
-import { Button, Avatar, Switch, Space, Menu, Dropdown } from 'antd';
+import { Button, Avatar, Switch, message, Modal, Dropdown } from 'antd';
 import { PlusOutlined, UserOutlined, CloseOutlined, CheckOutlined } from '@ant-design/icons';
 import request from 'umi-request';
-import { userList } from '@/services/userList';
+import { userList, setUserStatus } from '@/services/userList';
 
 export default () => {
 
+  const [isModalVisible, setModalVisible] = useState(false)
 
   const getUserList = async (params) => {
     try {
@@ -98,11 +100,43 @@ export default () => {
         rowKey="id"
         headerTitle="用户列表"
         toolBarRender={() => [
-          <Button key="button" icon={<PlusOutlined />} type="primary">
+          <Button key="button" icon={<PlusOutlined />} type="primary" onClick={() => setModalVisible(true)}>
             新建
           </Button>,
         ]}
       />
+      <Modal title="新增" visible={isModalVisible} onCancel={() => setModalVisible(false)} footer={null}>
+        <ProForm
+          onFinish={async (values) => {
+            console.log(values);
+            message.success('提交成功');
+          }}
+          initialValues={{
+            name: '蚂蚁设计有限公司',
+            email: 'chapter',
+          }}
+        >
+          <ProFormText
+            name="name"
+            label="昵称"
+            rules={[
+              { required: true, message: '昵称为必填'}
+            ]} />
+          <ProFormText
+            name="email"
+            label="邮箱"
+            rules={[
+              { required: true, message: '邮箱为必填'},
+              { required: true, type: 'email', message: '邮箱格式错误'}
+            ]} />
+          <ProFormText.Password
+            name="password"
+            label="密码"
+            rules={[
+              { required: true, message: '密码为必填'}
+            ]} />
+        </ProForm>
+      </Modal>
     </PageContainer>
   );
 };
