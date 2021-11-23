@@ -7,8 +7,8 @@ import { request } from 'umi';
 export async function queryCurrentUser(options) {
   return request('/admin/user', {
     method: 'GET',
-    ...(options || {})
-  })
+    ...(options || {}),
+  });
 }
 
 /** 登录接口 POST /api/login/account */
@@ -26,6 +26,6 @@ export async function login(body, options) {
 export async function logout(options) {
   return request('/auth/logout', {
     method: 'POST',
-    ...(options || {})
-  })
+    ...(options || {}),
+  });
 }
