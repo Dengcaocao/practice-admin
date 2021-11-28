@@ -19,3 +19,20 @@ export async function setUserStatus(uid) {
     method: 'PATCH'
   })
 }
+
+/** 添加用户 */
+
+export async function addUser(options) {
+  return request('/admin/users', {
+    method: 'post',
+    ...(options || {})
+  })
+}
+
+/** 用户详情 */
+
+export async function userDetail(uid) {
+  return request(`/admin/users/${uid}`, {
+    method: 'get'
+  })
+}

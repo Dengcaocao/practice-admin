@@ -38,9 +38,9 @@ const Login = () => {
         history.push(redirect || '/')
         return
       }
-      setUserLoginState(msg)
+      // setUserLoginState(msg)
     } catch (error) {
-      message.error(error.message)
+      // message.error(error.message)
     }
   };
 
