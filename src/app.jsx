@@ -37,19 +37,19 @@ const responseInterceptors = async (res) => {
    */
   try {
     const result = await res.clone().json()
+    let errorText = '';
+    // 登录相关错误
+    if (res.status === 422) {
+      for (let i in result.errors) {
+        errorText += result.errors[i].toString();
+      }
+      throw new Error(errorText);
+    }
+
+    if (res.status === 401) throw new Error('账户或密码错误！');
   } catch (error) {
     
   }
-  let errorText = '';
-  // 登录相关错误
-  if (res.status === 422) {
-    for (let i in result.errors) {
-      errorText += result.errors[i].toString();
-    }
-    throw new Error(errorText);
-  }
-
-  if (res.status === 401) throw new Error('账户或密码错误！');
   // if (res.status >= 400) throw new Error(result.message)
   return res;
 };
