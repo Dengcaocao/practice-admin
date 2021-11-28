@@ -4,7 +4,7 @@ export default [
     name: 'login',
     component: './Login',
     layout: false,
-    hideInMenu: true
+    hideInMenu: true,
   },
   {
     path: '/',
@@ -14,21 +14,29 @@ export default [
     routes: [
       {
         path: '/',
-        component: '@/pages/Home'
+        component: '@/pages/Home',
       },
       {
         path: 'userlist',
-        component: '@/pages/User'
-      }
-    ]
+        component: '@/pages/User',
+      },
+      {
+        path: 'goods',
+        component: '@/pages/Goods',
+      },
+    ],
   },
   {
     path: '/userlist',
     name: 'userlist',
     icon: 'UserOutlined',
-    // component: '@/pages/User'
   },
   {
-    component: './404'
+    path: '/goods',
+    name: 'goods',
+    icon: 'ShopOutlined',
+  },
+  {
+    component: './404',
   },
 ];
