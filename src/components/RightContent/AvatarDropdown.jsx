@@ -4,45 +4,49 @@ import { Avatar, Menu, Spin } from 'antd';
 import { history, useModel } from 'umi';
 import { stringify } from 'querystring';
 import HeaderDropdown from '../HeaderDropdown';
-import { message } from 'antd'
+import { message } from 'antd';
 import styles from './index.less';
 import { logout } from '@/services/user';
 
 /**
  * 退出登录，并且将当前的 url 保存
  */
-const handleLogout = async () => {
-  await logout()
-  const { query = {}, pathname } = history.location
-  const { redirect } = query // Note: There may be security issues, please note
+const handleLogout = async (setInitialState) => {
+  await logout();
+  /**
+   * 清除本地token，重置用户信息
+   */
+  setInitialState((s) => {
+    localStorage.removeItem('access_token');
+    return { ...s, currentUser: undefined };
+  });
+
+  const { query = {}, pathname } = history.location;
+  const { redirect } = query; // Note: There may be security issues, please note
 
   if (window.location.pathname !== '/login' && !redirect) {
     history.replace({
       pathname: '/login',
       search: stringify({
-        redirect: pathname
-      })
-    })
-    message.success('退出成功！')
+        redirect: pathname,
+      }),
+    });
+    message.success('退出成功！');
   }
-}
+};
 
 const AvatarDropdown = ({ menu }) => {
-  const { initialState, setInitialState } = useModel('@@initialState')
+  const { initialState, setInitialState } = useModel('@@initialState');
   const onMenuClick = useCallback(
     async (event) => {
-      const { key } = event
+      const { key } = event;
 
       if (key === 'logout') {
         /**
          * 退出登录需要token验证，需在清理token之前调用
          */
-        await handleLogout()
-        setInitialState(s => {
-          localStorage.removeItem('access_token')
-          return { ...s, currentUser: undefined }
-        })
-        return
+        await handleLogout(setInitialState);
+        return;
       }
 
       history.push(`/account/${key}`);
