@@ -63,12 +63,21 @@ export default () => {
 
   // 用户详情
   const getUserDetail = async (uid) => {
-    setModalVisible(true);
     const { name, email } = await userDetail(uid);
+    console.log({ name, email });
     setInitialValues({
       name,
       email,
     });
+  };
+
+  /**
+   * 关闭对话框
+   */
+  const closeModal = () => {
+    userForm.resetFields();
+    setModalVisible(false);
+    setInitialValues(null);
   };
 
   // 重置表单
@@ -164,10 +173,10 @@ export default () => {
         title={modalType === 'add' ? '新增' : '修改'}
         destroyOnClose={true}
         visible={isModalVisible}
-        onCancel={() => setModalVisible(false)}
+        onCancel={() => closeModal()}
         footer={null}
       >
-        {!initialValues ? (
+        {!initialValues && modalType === 'edit' ? (
           <div>
             <Skeleton
               loading={true}
