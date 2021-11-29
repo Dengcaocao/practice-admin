@@ -11,12 +11,12 @@ export async function userList(options) {
   });
 }
 
-/** 获取用户列表 GET /admin/users/{user}/lock */
+/** 禁用和启用 GET /admin/users/{user}/lock */
 
 export async function setUserStatus(uid) {
   return request(`/admin/users/${uid}/lock`, {
-    method: 'PATCH'
-  })
+    method: 'PATCH',
+  });
 }
 
 /** 添加用户 */
@@ -24,14 +24,14 @@ export async function setUserStatus(uid) {
 export async function addUser(options) {
   return request('/admin/users', {
     method: 'post',
-    ...(options || {})
-  })
+    ...(options || {}),
+  });
 }
 
 /** 用户详情 */
 
 export async function userDetail(uid) {
   return request(`/admin/users/${uid}`, {
-    method: 'get'
-  })
+    method: 'get',
+  });
 }
