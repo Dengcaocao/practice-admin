@@ -3,15 +3,15 @@ import { PageContainer } from '@ant-design/pro-layout';
 import ProTable from '@ant-design/pro-table';
 import ProForm, { ProFormText } from '@ant-design/pro-form';
 import { Button, Avatar, Switch, message, Modal, Skeleton, Form } from 'antd';
-import './index.less';
-import request from 'umi-request';
 import { userList, setUserStatus, addUser, userDetail } from '@/services/userList';
-import { PlusOutlined, UserOutlined, CloseOutlined, CheckOutlined } from '@ant-design/icons';
+import { PlusOutlined, UserOutlined } from '@ant-design/icons';
+import './index.less';
 
 export default () => {
   const [userForm] = Form.useForm();
 
   const [isModalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState('');
   const [initialValues, setInitialValues] = useState(null);
 
   const getUserList = async (params) => {
@@ -36,6 +36,18 @@ export default () => {
   const handleUserStatus = async (uid) => {
     const result = await setUserStatus(uid);
     if (!result) message.success('设置成功');
+  };
+
+  /**
+   * 处理用户信息
+   * @param {uid}
+   */
+  const handleAction = (uid) => {
+    setModalVisible(true);
+    if (!uid) return setModalType('add');
+    console.log(initialValues);
+    setModalType('edit');
+    getUserDetail(uid);
   };
 
   // 添加用户
@@ -117,7 +129,7 @@ export default () => {
       ellipsis: true,
       hideInSearch: true,
       render: (text, record) => [
-        <a key="link" onClick={() => getUserDetail(record.id)}>
+        <a key="link" onClick={() => handleAction(record.id)}>
           编辑
         </a>,
       ],
@@ -138,13 +150,18 @@ export default () => {
         rowKey="id"
         headerTitle="用户列表"
         toolBarRender={() => [
-          <Button key="button" icon={<PlusOutlined />} type="primary">
+          <Button
+            key="button"
+            icon={<PlusOutlined />}
+            type="primary"
+            onClick={() => handleAction()}
+          >
             新建
           </Button>,
         ]}
       />
       <Modal
-        title="新增"
+        title={modalType === 'add' ? '新增' : '修改'}
         destroyOnClose={true}
         visible={isModalVisible}
         onCancel={() => setModalVisible(false)}
