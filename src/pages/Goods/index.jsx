@@ -1,11 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useRef, forwardRef } from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProTable from '@ant-design/pro-table';
+import InfoModal from './infoModal';
 import { Button, Image, Switch, message } from 'antd';
-import { PlusOutlined, UserOutlined } from '@ant-design/icons';
+import { PlusOutlined } from '@ant-design/icons';
 import { goodsList, isOn, isRecommend } from '@/services/goods';
 
 export default () => {
+  const infoModal = useRef();
+
   const getList = async (params) => {
     params.is_on && (params.is_on = parseInt(params.is_on));
     params.is_recommend && (params.is_recommend = parseInt(params.is_recommend));
@@ -31,6 +34,10 @@ export default () => {
   const handleIsRecommend = async (goodId) => {
     const result = await isRecommend(goodId);
     if (!result) message.success('切换成功');
+  };
+
+  const handleInfo = () => {
+    infoModal.current?.setIsInfoModal();
   };
 
   const columns = [
@@ -122,11 +129,12 @@ export default () => {
         rowKey="id"
         headerTitle="商品列表"
         toolBarRender={() => [
-          <Button key="button" icon={<PlusOutlined />} type="primary">
+          <Button key="button" icon={<PlusOutlined />} type="primary" onClick={handleInfo}>
             新建
           </Button>,
         ]}
       />
+      <InfoModal ref={infoModal} />
     </PageContainer>
   );
 };
