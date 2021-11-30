@@ -35,3 +35,12 @@ export async function userDetail(uid) {
     method: 'get',
   });
 }
+
+/** 更新用户 */
+
+export async function updateUser(uid, options) {
+  return request(`/admin/users/${uid}`, {
+    method: 'PUT',
+    ...(options || {}),
+  });
+}

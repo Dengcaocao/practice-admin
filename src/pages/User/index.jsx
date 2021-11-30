@@ -1,18 +1,20 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProTable from '@ant-design/pro-table';
 import ProForm, { ProFormText } from '@ant-design/pro-form';
 import { Button, Avatar, Switch, message, Modal, Skeleton, Form } from 'antd';
-import { userList, setUserStatus, addUser, userDetail } from '@/services/userList';
+import { userList, setUserStatus, addUser, userDetail, updateUser } from '@/services/userList';
 import { PlusOutlined, UserOutlined } from '@ant-design/icons';
 import './index.less';
 
 export default () => {
+  const actionTable = useRef();
   const [userForm] = Form.useForm();
 
   const [isModalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState('');
-  const [initialValues, setInitialValues] = useState(null);
+  const [uid, setUid] = useState(null);
+  const [skeletonState, setSkeletonState] = useState(false);
 
   const getUserList = async (params) => {
     const result = await userList({ params });
@@ -30,7 +32,7 @@ export default () => {
   };
 
   /**
-   *
+   * 处理用户状态
    * @param {uid}
    */
   const handleUserStatus = async (uid) => {
@@ -45,8 +47,9 @@ export default () => {
   const handleAction = (uid) => {
     setModalVisible(true);
     if (!uid) return setModalType('add');
-    console.log(initialValues);
+    setSkeletonState(true);
     setModalType('edit');
+    setUid(uid);
     getUserDetail(uid);
   };
 
@@ -64,29 +67,28 @@ export default () => {
   // 用户详情
   const getUserDetail = async (uid) => {
     const { name, email } = await userDetail(uid);
-    console.log({ name, email });
-    setInitialValues({
-      name,
-      email,
-    });
+    userForm.setFieldsValue({ name, email });
+    setSkeletonState(false);
   };
 
   /**
-   * 关闭对话框
+   * 更新用户
    */
-  const closeModal = () => {
-    userForm.resetFields();
-    setModalVisible(false);
-    setInitialValues(null);
+  const handleUpdateUser = async (uid, options) => {
+    const result = await updateUser(uid, options);
+    if (!result) {
+      setModalVisible(false);
+      message.success('更新成功');
+    }
   };
 
-  // 重置表单
-  const handleReset = () => {
-    userForm.setFields([
-      { name: 'name', value: '' },
-      { name: 'email', value: '' },
-    ]);
-    // userForm.resetFields()
+  const handleSubmit = async (values) => {
+    if (modalType === 'add') {
+      await handleAddUser(values);
+    } else {
+      await handleUpdateUser(uid, { params: values });
+    }
+    actionTable.current.reload();
   };
 
   const columns = [
@@ -148,6 +150,7 @@ export default () => {
   return (
     <PageContainer>
       <ProTable
+        actionRef={actionTable}
         columns={columns}
         request={async (params = {}) => getUserList(params)}
         search={{
@@ -173,10 +176,10 @@ export default () => {
         title={modalType === 'add' ? '新增' : '修改'}
         destroyOnClose={true}
         visible={isModalVisible}
-        onCancel={() => closeModal()}
+        onCancel={() => setModalVisible(false)}
         footer={null}
       >
-        {!initialValues && modalType === 'edit' ? (
+        {skeletonState ? (
           <div>
             <Skeleton
               loading={true}
@@ -198,10 +201,10 @@ export default () => {
             form={userForm}
             preserve={false}
             onFinish={(values) => {
-              handleAddUser(values);
+              handleSubmit(values);
             }}
-            onReset={handleReset}
-            initialValues={initialValues}
+            onReset={() => userForm.resetFields()}
+            initialValues={{}}
           >
             <ProFormText
               name="name"
@@ -216,11 +219,13 @@ export default () => {
                 { required: true, type: 'email', message: '邮箱格式错误' },
               ]}
             />
-            <ProFormText.Password
-              name="password"
-              label="密码"
-              rules={[{ required: true, message: '密码为必填' }]}
-            />
+            {modalType !== 'edit' ? (
+              <ProFormText.Password
+                name="password"
+                label="密码"
+                rules={[{ required: true, message: '密码为必填' }]}
+              />
+            ) : null}
           </ProForm>
         )}
       </Modal>
