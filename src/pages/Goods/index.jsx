@@ -5,8 +5,10 @@ import InfoModal from './infoModal';
 import { Button, Image, Switch, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { goodsList, isOn, isRecommend } from '@/services/goods';
+import './index.less';
 
 export default () => {
+  const actionTable = useRef();
   const infoModal = useRef();
 
   const getList = async (params) => {
@@ -36,8 +38,8 @@ export default () => {
     if (!result) message.success('切换成功');
   };
 
-  const handleInfo = () => {
-    infoModal.current?.setIsInfoModal();
+  const handleInfo = (goodsId) => {
+    infoModal.current?.setIsInfoModal(goodsId);
   };
 
   const columns = [
@@ -110,13 +112,18 @@ export default () => {
       title: '操作',
       dataIndex: 'action',
       hideInSearch: true,
-      render: (text, record) => [<a key="link">编辑</a>],
+      render: (text, record) => [
+        <a key="link" onClick={() => handleInfo(record.id)}>
+          编辑
+        </a>,
+      ],
     },
   ];
 
   return (
-    <PageContainer>
+    <PageContainer className="goods">
       <ProTable
+        actionRef={actionTable}
         columns={columns}
         request={async (params = {}) => getList(params)}
         onSubmit={(params) => console.log(params)}
@@ -129,12 +136,12 @@ export default () => {
         rowKey="id"
         headerTitle="商品列表"
         toolBarRender={() => [
-          <Button key="button" icon={<PlusOutlined />} type="primary" onClick={handleInfo}>
+          <Button key="button" icon={<PlusOutlined />} type="primary" onClick={() => handleInfo()}>
             新建
           </Button>,
         ]}
       />
-      <InfoModal ref={infoModal} />
+      <InfoModal ref={infoModal} actionTable={actionTable} />
     </PageContainer>
   );
 };
