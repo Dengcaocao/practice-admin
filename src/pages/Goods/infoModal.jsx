@@ -1,7 +1,9 @@
-import { Modal, Form, message, Cascader, Upload } from 'antd';
+import { Modal, Form, message, Cascader } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import ProForm, { ProFormText, ProFormMoney, ProFormTextArea } from '@ant-design/pro-form';
 import { useState, forwardRef, useImperativeHandle } from 'react';
+import Upload from '@/components/upload';
+import { getCategory } from '@/services/goods';
 
 export default forwardRef((props, ref) => {
   const { actionTable } = props;
@@ -10,6 +12,7 @@ export default forwardRef((props, ref) => {
   const [isInfoModal, setIsInfoModal] = useState(false);
   const [uploadState, setUploadState] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
+  const [options, setOptions] = useState([]);
 
   const uploadButton = (
     <div>
@@ -20,48 +23,23 @@ export default forwardRef((props, ref) => {
 
   useImperativeHandle(ref, () => ({
     setIsInfoModal: (goodsId) => {
+      handleCategory();
       setModalType(goodsId ? 'edit' : 'add');
       setIsInfoModal(true);
     },
   }));
 
-  const options = [
-    {
-      value: 'zhejiang',
-      label: 'Zhejiang',
-      children: [
-        {
-          value: 'hangzhou',
-          label: 'Hangzhou',
-          children: [
-            {
-              value: 'xihu',
-              label: 'West Lake',
-            },
-          ],
-        },
-      ],
-    },
-    {
-      value: 'jiangsu',
-      label: 'Jiangsu',
-      children: [
-        {
-          value: 'nanjing',
-          label: 'Nanjing',
-          children: [
-            {
-              value: 'zhonghuamen',
-              label: 'Zhong Hua Men',
-            },
-          ],
-        },
-      ],
-    },
-  ];
-
   const onChange = (value) => {
     console.log(value);
+  };
+
+  /**
+   * 获取商品分类
+   */
+  const handleCategory = async () => {
+    const result = await getCategory();
+    setOptions(result);
+    console.log(result);
   };
 
   /**
@@ -154,7 +132,12 @@ export default forwardRef((props, ref) => {
           label="分类"
           rules={[{ required: true, message: '请选择分类' }]}
         >
-          <Cascader options={options} onChange={onChange} placeholder="Please select" />
+          <Cascader
+            fieldNames={{ label: 'name', value: 'id' }}
+            options={options}
+            onChange={onChange}
+            placeholder="Please select"
+          />
         </ProForm.Item>
         <ProFormText
           name="title"
@@ -179,7 +162,7 @@ export default forwardRef((props, ref) => {
           label="封面图"
           rules={[{ required: true, message: '请选择封面图' }]}
         >
-          <Upload
+          {/* <Upload
             listType="picture-card"
             showUploadList={false}
             action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
@@ -191,7 +174,8 @@ export default forwardRef((props, ref) => {
             ) : (
               uploadButton
             )}
-          </Upload>
+          </Upload> */}
+          <Upload />
         </ProForm.Item>
         <ProFormTextArea
           label="描述"

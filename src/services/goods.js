@@ -24,3 +24,23 @@ export async function isRecommend(goodId) {
     method: 'PATCH',
   });
 }
+
+/** 商品分类 GET /admin/category */
+
+export async function getCategory(options) {
+  return request('/admin/category', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+/** 获取阿里云OSS Token，用于前端直传文件使用
+ *  GET /auth/oss/token
+ */
+
+export async function getOSS(options) {
+  return request('/auth/oss/token', {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
