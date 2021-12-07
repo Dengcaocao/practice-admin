@@ -26,7 +26,10 @@ export default class AliyunOSSUpload extends React.Component {
   };
 
   onChange = ({ file }) => {
-    if (file.status === 'done') return message.success('上传成功');
+    if (file.status === 'done') {
+      this.props.setFiledsValue(file.key);
+      message.success('上传成功');
+    }
   };
 
   /**

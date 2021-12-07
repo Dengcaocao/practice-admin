@@ -42,6 +42,11 @@ export default forwardRef((props, ref) => {
   };
 
   /**
+   * 设置图片字段的值
+   */
+  const setFiledsValue = (fileKey) => goodsForm.setFieldsValue({ cover: fileKey });
+
+  /**
    * 处理添加商品
    * @param {*} values
    */
@@ -161,9 +166,11 @@ export default forwardRef((props, ref) => {
           label="封面图"
           rules={[{ required: true, message: '请选择封面图' }]}
         >
-          <Upload accept="image/*">
-            <Button icon={<UploadOutlined />}>Click to Upload</Button>
-          </Upload>
+          <div>
+            <Upload accept="image/*" setFiledsValue={setFiledsValue}>
+              <Button icon={<UploadOutlined />}>Click to Upload</Button>
+            </Upload>
+          </div>
         </ProForm.Item>
         <ProFormTextArea
           label="描述"
