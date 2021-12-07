@@ -1,5 +1,5 @@
-import { Modal, Form, message, Cascader } from 'antd';
-import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
+import { Modal, Form, message, Cascader, Button } from 'antd';
+import { LoadingOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import ProForm, { ProFormText, ProFormMoney, ProFormTextArea } from '@ant-design/pro-form';
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import Upload from '@/components/upload';
@@ -39,7 +39,6 @@ export default forwardRef((props, ref) => {
   const handleCategory = async () => {
     const result = await getCategory();
     setOptions(result);
-    console.log(result);
   };
 
   /**
@@ -158,24 +157,13 @@ export default forwardRef((props, ref) => {
           min={0}
         />
         <ProForm.Item
-          name="img"
+          name="cover"
           label="封面图"
           rules={[{ required: true, message: '请选择封面图' }]}
         >
-          {/* <Upload
-            listType="picture-card"
-            showUploadList={false}
-            action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-            beforeUpload={beforeUpload}
-            onChange={handleChange}
-          >
-            {imageUrl ? (
-              <img src={imageUrl} alt="avatar" style={{ width: '100%' }} />
-            ) : (
-              uploadButton
-            )}
-          </Upload> */}
-          <Upload />
+          <Upload accept="image/*">
+            <Button icon={<UploadOutlined />}>Click to Upload</Button>
+          </Upload>
         </ProForm.Item>
         <ProFormTextArea
           label="描述"

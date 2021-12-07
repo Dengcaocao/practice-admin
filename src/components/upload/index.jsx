@@ -1,6 +1,5 @@
 import React from 'react';
-import { Upload, message, Button } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { Upload, message } from 'antd';
 import { getOSS } from '@/services/goods';
 
 export default class AliyunOSSUpload extends React.Component {
@@ -9,10 +8,12 @@ export default class AliyunOSSUpload extends React.Component {
   };
 
   async componentDidMount() {
-    console.log('componentDidMount');
     await this.init();
   }
 
+  /**
+   * 初始化oss token
+   */
   init = async () => {
     try {
       const OSSData = await getOSS();
@@ -24,35 +25,31 @@ export default class AliyunOSSUpload extends React.Component {
     }
   };
 
-  onChange = ({ fileList }) => {
-    const { onChange } = this.props;
-    console.log('Aliyun OSS:', fileList);
-    if (onChange) {
-      onChange([...fileList]);
-    }
+  onChange = ({ file }) => {
+    if (file.status === 'done') return message.success('上传成功');
   };
 
-  onRemove = (file) => {
-    const { value, onChange } = this.props;
-
-    const files = value.filter((v) => v.url !== file.url);
-
-    if (onChange) {
-      onChange(files);
-    }
-  };
-
+  /**
+   * 图片上传参数
+   * @param {*} file
+   * @returns
+   */
   getExtraData = (file) => {
     const { OSSData } = this.state;
 
     return {
-      key: file.url,
-      OSSAccessKeyId: OSSData.accessId,
+      key: file.key,
+      OSSAccessKeyId: OSSData.accessid,
       policy: OSSData.policy,
       Signature: OSSData.signature,
     };
   };
 
+  /**
+   * 上传之前处理
+   * @param {*} file
+   * @returns
+   */
   beforeUpload = async (file) => {
     const { OSSData } = this.state;
     const expire = OSSData.expire * 1000;
@@ -61,28 +58,28 @@ export default class AliyunOSSUpload extends React.Component {
       await this.init();
     }
 
+    const dir = 'react/';
     const suffix = file.name.slice(file.name.lastIndexOf('.'));
     const filename = Date.now() + suffix;
-    file.url = OSSData.dir + filename;
+    file.key = OSSData.dir + dir + filename;
+    file.url = OSSData.host + OSSData.dir + dir + filename;
 
     return file;
   };
 
   render() {
-    const { value } = this.props;
+    const { value, accept } = this.props;
     const props = {
+      accept: accept || '',
       name: 'file',
+      listType: 'picture',
+      maxCount: 1,
       fileList: value,
       action: this.state.OSSData.host,
       onChange: this.onChange,
-      onRemove: this.onRemove,
       data: this.getExtraData,
       beforeUpload: this.beforeUpload,
     };
-    return (
-      <Upload {...props}>
-        <Button icon={<UploadOutlined />}>Click to Upload</Button>
-      </Upload>
-    );
+    return <Upload {...props}>{this.props.children}</Upload>;
   }
 }
