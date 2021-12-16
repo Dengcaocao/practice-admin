@@ -3,6 +3,7 @@ import { LoadingOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons
 import ProForm, { ProFormText, ProFormMoney, ProFormTextArea } from '@ant-design/pro-form';
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import Upload from '@/components/upload';
+import Editor from '@/components/Editor';
 import { getCategory } from '@/services/goods';
 
 export default forwardRef((props, ref) => {
@@ -10,16 +11,7 @@ export default forwardRef((props, ref) => {
   const [goodsForm] = Form.useForm();
   const [modalType, setModalType] = useState('');
   const [isInfoModal, setIsInfoModal] = useState(false);
-  const [uploadState, setUploadState] = useState(false);
-  const [imageUrl, setImageUrl] = useState('');
   const [options, setOptions] = useState([]);
-
-  const uploadButton = (
-    <div>
-      {uploadState ? <LoadingOutlined /> : <PlusOutlined />}
-      <div style={{ marginTop: 8 }}>Upload</div>
-    </div>
-  );
 
   useImperativeHandle(ref, () => ({
     setIsInfoModal: (goodsId) => {
@@ -28,10 +20,6 @@ export default forwardRef((props, ref) => {
       setIsInfoModal(true);
     },
   }));
-
-  const onChange = (value) => {
-    console.log(value);
-  };
 
   /**
    * 获取商品分类
@@ -45,6 +33,11 @@ export default forwardRef((props, ref) => {
    * 设置图片字段的值
    */
   const setFiledsValue = (fileKey) => goodsForm.setFieldsValue({ cover: fileKey });
+
+  /**
+   * 设置富文本的值
+   */
+  const setValueEditor = (content) => goodsForm.setFieldsValue({ details: content });
 
   /**
    * 处理添加商品
@@ -68,43 +61,6 @@ export default forwardRef((props, ref) => {
    */
   const handleUpdate = async () => {
     console.log('更新商品');
-  };
-
-  /**
-   * 封面图处理
-   * @param {*} values
-   */
-  function getBase64(img, callback) {
-    const reader = new FileReader();
-    reader.addEventListener('load', () => callback(reader.result));
-    reader.readAsDataURL(img);
-  }
-  const beforeUpload = (file) => {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
-    if (!isJpgOrPng) {
-      message.error('You can only upload JPG/PNG file!');
-    }
-    const isLt2M = file.size / 1024 / 1024 < 2;
-    if (!isLt2M) {
-      message.error('Image must smaller than 2MB!');
-    }
-    return isJpgOrPng && isLt2M;
-  };
-
-  const handleChange = (info) => {
-    if (info.file.status === 'uploading') {
-      return setUploadState(true);
-    }
-    if (info.file.status === 'done') {
-      // Get this url from response in real world.
-      getBase64(info.file.originFileObj, (imageUrl) => {
-        setUploadState(false);
-        setImageUrl(imageUrl);
-      });
-    }
-    if (info.file.status === 'error') {
-      setUploadState(false);
-    }
   };
 
   const handleSubmit = async (values) => {
@@ -139,8 +95,7 @@ export default forwardRef((props, ref) => {
           <Cascader
             fieldNames={{ label: 'name', value: 'id' }}
             options={options}
-            onChange={onChange}
-            placeholder="Please select"
+            placeholder="选择分类"
           />
         </ProForm.Item>
         <ProFormText
@@ -167,7 +122,7 @@ export default forwardRef((props, ref) => {
           rules={[{ required: true, message: '请选择封面图' }]}
         >
           <div>
-            <Upload accept="image/*" setFiledsValue={setFiledsValue}>
+            <Upload accept="image/*" showUploadList={true} setFiledsValue={setFiledsValue}>
               <Button icon={<UploadOutlined />}>Click to Upload</Button>
             </Upload>
           </div>
@@ -177,11 +132,13 @@ export default forwardRef((props, ref) => {
           name="description"
           rules={[{ required: true, message: '请输入描述' }]}
         />
-        <ProFormTextArea
-          label="详情"
+        <ProForm.Item
           name="details"
+          label="详情"
           rules={[{ required: true, message: '请输入详情' }]}
-        />
+        >
+          <Editor setValueEditor={setValueEditor} />
+        </ProForm.Item>
       </ProForm>
     </Modal>
   );
