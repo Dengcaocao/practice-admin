@@ -4,7 +4,7 @@ import ProForm, { ProFormText, ProFormMoney, ProFormTextArea } from '@ant-design
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import Upload from '@/components/upload';
 import Editor from '@/components/Editor';
-import { getCategory } from '@/services/goods';
+import { getCategory, addGoods } from '@/services/goods';
 
 export default forwardRef((props, ref) => {
   const { actionTable } = props;
@@ -43,8 +43,12 @@ export default forwardRef((props, ref) => {
    * 处理添加商品
    * @param {*} values
    */
-  const handleAdd = async () => {
-    console.log('添加商品');
+  const handleAdd = async (values) => {
+    const result = await addGoods({ params: { ...values, category_id: values.category_id[1] } });
+    if (!result) {
+      setIsInfoModal(false);
+      message.success('添加成功');
+    }
   };
 
   /**
@@ -64,11 +68,9 @@ export default forwardRef((props, ref) => {
   };
 
   const handleSubmit = async (values) => {
-    if (modalType === 'add') await handleAdd();
+    if (modalType === 'add') await handleAdd(values);
     if (modalType === 'edit') await handleUpdate();
     actionTable.current.reload();
-    console.log(values);
-    message.success('提交成功');
   };
 
   return (
@@ -88,7 +90,7 @@ export default forwardRef((props, ref) => {
         }}
       >
         <ProForm.Item
-          name="category"
+          name="category_id"
           label="分类"
           rules={[{ required: true, message: '请选择分类' }]}
         >

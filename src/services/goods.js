@@ -44,3 +44,13 @@ export async function getOSS(options) {
     ...(options || {}),
   });
 }
+
+/**
+ * 添加商品
+ */
+export async function addGoods(options) {
+  return request('/admin/goods', {
+    method: 'POST',
+    ...(options || {}),
+  });
+}
