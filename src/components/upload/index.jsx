@@ -27,7 +27,8 @@ export default class AliyunOSSUpload extends React.Component {
 
   onChange = ({ file }) => {
     if (file.status === 'done') {
-      this.props.setFiledsValue(file.key);
+      this.props.setFiledsValue && this.props.setFiledsValue(file.key);
+      this.props.handleInsertMedias && this.props.handleInsertMedias(file.url);
       message.success('上传成功');
     }
   };
@@ -71,13 +72,14 @@ export default class AliyunOSSUpload extends React.Component {
   };
 
   render() {
-    const { value, accept } = this.props;
+    const { value, accept, showUploadList } = this.props;
     const props = {
       accept: accept || '',
       name: 'file',
       listType: 'picture',
       maxCount: 1,
       fileList: value,
+      showUploadList: showUploadList ? true : false,
       action: this.state.OSSData.host,
       onChange: this.onChange,
       data: this.getExtraData,
