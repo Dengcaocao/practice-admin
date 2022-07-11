@@ -1,10 +1,10 @@
-import { Modal, Form, message, Cascader, Button } from 'antd';
-import { LoadingOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
+import { Modal, Form, message, Cascader, Button, Image } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 import ProForm, { ProFormText, ProFormMoney, ProFormTextArea } from '@ant-design/pro-form';
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import Upload from '@/components/upload';
 import Editor from '@/components/Editor';
-import { getCategory, addGoods } from '@/services/goods';
+import { getCategory, addGoods, goodsDetail } from '@/services/goods';
 
 export default forwardRef((props, ref) => {
   const { actionTable } = props;
@@ -12,12 +12,14 @@ export default forwardRef((props, ref) => {
   const [modalType, setModalType] = useState('');
   const [isInfoModal, setIsInfoModal] = useState(false);
   const [options, setOptions] = useState([]);
+  const [details, setDetails] = useState('');
 
   useImperativeHandle(ref, () => ({
     setIsInfoModal: (goodsId) => {
       handleCategory();
       setModalType(goodsId ? 'edit' : 'add');
       setIsInfoModal(true);
+      handleDetail(goodsId);
     },
   }));
 
@@ -54,9 +56,11 @@ export default forwardRef((props, ref) => {
   /**
    * 获取商品详情
    */
-  const handleDetail = async () => {
-    // 获取表单字段
-    console.log(goodsForm.getFieldsValue(true));
+  const handleDetail = async (goodsId) => {
+    const result = await goodsDetail(goodsId);
+    const { pid, id } = result.category;
+    goodsForm.setFieldsValue({ ...result, category_id: [pid, id] });
+    setDetails(goodsForm.getFieldValue('details'));
   };
 
   /**
@@ -126,6 +130,36 @@ export default forwardRef((props, ref) => {
           <div>
             <Upload accept="image/*" showUploadList={true} setFiledsValue={setFiledsValue}>
               <Button icon={<UploadOutlined />}>Click to Upload</Button>
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+                <a
+                  href={
+                    'https://laravel-book-shop.oss-cn-beijing.aliyuncs.com/' +
+                    goodsForm.getFieldValue('cover')
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Image
+                    width={120}
+                    src={
+                      'https://laravel-book-shop.oss-cn-beijing.aliyuncs.com/' +
+                      goodsForm.getFieldValue('cover')
+                    }
+                  />
+                </a>
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ant-upload-list-item-name"
+                  title={goodsForm.getFieldValue('cover')}
+                  href={
+                    'https://laravel-book-shop.oss-cn-beijing.aliyuncs.com/' +
+                    goodsForm.getFieldValue('cover')
+                  }
+                >
+                  {goodsForm.getFieldValue('cover')}
+                </a>
+              </span>
             </Upload>
           </div>
         </ProForm.Item>
@@ -139,7 +173,7 @@ export default forwardRef((props, ref) => {
           label="详情"
           rules={[{ required: true, message: '请输入详情' }]}
         >
-          <Editor setValueEditor={setValueEditor} />
+          <Editor setValueEditor={setValueEditor} content={details} />
         </ProForm.Item>
       </ProForm>
     </Modal>

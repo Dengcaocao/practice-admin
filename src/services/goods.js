@@ -54,3 +54,12 @@ export async function addGoods(options) {
     ...(options || {}),
   });
 }
+
+/**
+ * 商品详情
+ */
+export async function goodsDetail(goodsId) {
+  return request(`/admin/goods/${goodsId}?include=category,user,comments`, {
+    method: 'GET',
+  });
+}
